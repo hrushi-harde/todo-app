@@ -28,6 +28,8 @@
 </div>
 
 <script>
+document.addEventListener("DOMContentLoaded", () => {
+
 const API_URL = "https://todo-backend-o6jo.onrender.com";
 
 // Toast
@@ -48,29 +50,25 @@ async function loadTasks(){
 
     try {
         let res = await fetch(`${API_URL}/tasks`);
-        if(!res.ok) throw new Error("Fetch failed");
-
         let data = await res.json();
         displayTask(data);
-
     } catch (error) {
         display.innerHTML = "<h2>❌ Failed to load tasks</h2>";
-        showToast("Server not responding", "#f44336");
         console.error(error);
     }
 }
 
-window.onload = loadTasks;
-
 // Add Task
-async function addTask(){
+window.addTask = async function (){
     let task = document.getElementById('task').value;
     let priority = document.getElementById('priority').value;
 
     if(task.trim() === ""){
-        showToast("Enter a task first", "#ff9800");
+        showToast("Enter task first", "orange");
         return;
     }
+
+    console.log("🚀 Sending request..."); // DEBUG
 
     try {
         let res = await fetch(`${API_URL}/tasks`, {
@@ -81,65 +79,48 @@ async function addTask(){
             body: JSON.stringify({ task, priority })
         });
 
-        if(!res.ok) throw new Error("Add failed");
+        console.log("Response:", res);
 
-        showToast("Task Added", "#4caf50");
+        showToast("Task Added", "green");
 
         document.getElementById('task').value = "";
         loadTasks();
 
     } catch (error) {
-        showToast("❌ Failed to add task", "#f44336");
         console.error(error);
     }
-}
+};
 
-// Display Tasks
+// Display
 function displayTask(tasks){
     let display = document.getElementById('displayContainer');
-
-    if(tasks.length === 0){
-        display.innerHTML = "<h2>No tasks yet...</h2>";
-        return;
-    }
-
     display.innerHTML = "";
 
-    tasks.forEach(task => {
+    tasks.forEach(t => {
         display.innerHTML += `
-        <div id="displayContainers">
-            <h1 class="h1tag">${task.task}</h1>
-            <h2 class="h2tag">${task.priority}</h2>
-            <button class="btn2" onclick="deleteTask(${task.id})">✔ Complete</button>
+        <div>
+            <h3>${t.task} - ${t.priority}</h3>
+            <button onclick="deleteTask(${t.id})">Complete</button>
         </div>`;
     });
 }
 
-// Delete Task
-async function deleteTask(taskId) {
-    try {
-        let res = await fetch(`${API_URL}/tasks/${taskId}`, {
-            method: "DELETE"
-        });
+// Delete
+window.deleteTask = async function(id){
+    await fetch(`${API_URL}/tasks/${id}`, {
+        method: "DELETE"
+    });
+    loadTasks();
+};
 
-        if(!res.ok) throw new Error("Delete failed");
-
-        showToast("🎉 Task Completed", "#2196f3");
-        loadTasks();
-
-    } catch (error) {
-        showToast("❌ Failed to delete task", "#f44336");
-        console.error(error);
-    }
-}
-
-// Enter key support
+// Enter key fix
 document.getElementById("task").addEventListener("keypress", function(e) {
     if (e.key === "Enter") {
         addTask();
     }
 });
-</script>
 
-</body>
-</html>
+loadTasks();
+
+});
+</script>
