@@ -1,70 +1,75 @@
 body {
     margin: 0;
     padding: 0;
+    font-family: 'Times New Roman', Times, serif;
 }
 
+/* Input bar */
 .container {
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 10px;
-    background-color: rgb(0, 0, 0);
+    background-color: black;
     height: 80px;
     position: fixed;
     bottom: 0;
 }
 
+/* Input */
 #task {
     border: 3px solid rgb(157, 188, 188);
     height: 40px;
     border-radius: 5px;
     width: 250px;
-    font-family: 'Times New Roman', Times, serif;
-    font-size: 20px;
+    font-size: 18px;
 }
 
+/* Button */
 .btn {
     background-color: yellow;
     height: 40px; 
     border: none;
     border-radius: 5px;
-    width: 100px;
-    font-size: 20px;
-    font-family: 'Times New Roman', Times, serif;
+    width: 120px;
+    font-size: 18px;
+    cursor: pointer;
 }
 
+/* Dropdown */
 .selects {
     height: 40px;
-    border: none;
-    font-size: 20px;
+    font-size: 18px;
     border-radius: 5px;
-    font-family: 'Times New Roman', Times, serif;
 }
 
-#displayContainers {
+/* 🔥 TASK CARD (FIXED) */
+.task-card {
     width: 80%;
-    height: 60px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
+    padding: 15px;
     background-color: rgb(231, 228, 228);
-    border: 2px solid;
-    margin-top: 10px;
-    margin-left: 40px;
+    border: 2px solid black;
+    margin: 10px auto;
     border-radius: 10px;
-    font-family: 'Times New Roman', Times, serif;
 }
 
+/* Priority */
+.priority {
+    font-weight: bold;
+}
+
+/* Complete button */
 .btn2 {
     background-color: #4CAF50;
-    height: 40px;
+    height: 35px;
     border: none;
     cursor: pointer;
     padding: 5px 10px;
     border-radius: 5px;
-    font-family: 'Times New Roman', Times, serif;
     color: white;
     font-weight: bold;
 }
@@ -73,55 +78,27 @@ body {
     background-color: #45a049;
 }
 
-.h2tag {
-    margin-left: auto;
-    margin-right: 10px;
-}
-
+/* Heading */
 #heading {
-    color: rgb(39, 45, 17);
     text-align: center;
-    justify-content: center;
-    font-family: 'Times New Roman', Times, serif;
+    margin-top: 20px;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
-    .container {
+    .task-card {
         flex-direction: column;
-        height: auto;
-        padding: 10px;
-    }
-    #task, .selects, .btn {
-        width: 90%;
-    }
-    #displayContainers {
-        flex-direction: column;
-        align-items: center;
+        gap: 10px;
         text-align: center;
-        width: 90%;
-        margin-left: auto;
-        margin-right: auto;
     }
-}
 
-@media (max-width: 480px) {
     .container {
         flex-direction: column;
         height: auto;
         padding: 10px;
     }
+
     #task, .selects, .btn {
-        width: 100%;
-    }
-    #displayContainers {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        width: 95%;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .btn2 {
-        width: 100%;
+        width: 90%;
     }
 }

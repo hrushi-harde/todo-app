@@ -24,8 +24,6 @@ async function loadTasks(){
 }
 
 window.addTask = async function (){
-    console.log("🔥 CLICK WORKING");
-
     let task = document.getElementById('task').value;
     let priority = document.getElementById('priority').value;
 
@@ -35,7 +33,7 @@ window.addTask = async function (){
     }
 
     try {
-        let res = await fetch(`${API_URL}/tasks`, {
+        await fetch(`${API_URL}/tasks`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -43,7 +41,7 @@ window.addTask = async function (){
             body: JSON.stringify({ task, priority })
         });
 
-        console.log("✅ SENT");
+        showToast("Task Added", "green");
 
         document.getElementById('task').value = "";
         loadTasks();
@@ -59,9 +57,10 @@ function displayTask(tasks){
 
     tasks.forEach(t => {
         display.innerHTML += `
-        <div>
-            <h3>${t.task} - ${t.priority}</h3>
-            <button onclick="deleteTask(${t.id})">Complete</button>
+        <div class="task-card">
+            <h3>${t.task}</h3>
+            <p class="priority">${t.priority}</p>
+            <button class="btn2" onclick="deleteTask(${t.id})">✔ Complete</button>
         </div>`;
     });
 }
@@ -70,11 +69,12 @@ window.deleteTask = async function(id){
     await fetch(`${API_URL}/tasks/${id}`, {
         method: "DELETE"
     });
+
+    showToast("Task Completed", "#2196f3");
     loadTasks();
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("🚀 JS LOADED");
     loadTasks();
 
     document.getElementById("task").addEventListener("keypress", function(e) {
