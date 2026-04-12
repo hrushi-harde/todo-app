@@ -1,20 +1,17 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TO DO Application</title>
 
-```
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 
-<!-- Toastify -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-```
-
+    <!-- Toastify -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
+
 <body>
 
 <h1 id="heading">TO DO List</h1>
@@ -40,9 +37,7 @@ function showToast(message, color) {
         duration: 2000,
         gravity: "top",
         position: "right",
-        style: {
-            background: color
-        }
+        style: { background: color }
     }).showToast();
 }
 
@@ -53,14 +48,13 @@ async function loadTasks(){
 
     try {
         let res = await fetch(`${API_URL}/tasks`);
-
         if(!res.ok) throw new Error("Fetch failed");
 
         let data = await res.json();
         displayTask(data);
 
     } catch (error) {
-        display.innerHTML = "<h2> Failed to load tasks</h2>";
+        display.innerHTML = "<h2>❌ Failed to load tasks</h2>";
         showToast("Server not responding", "#f44336");
         console.error(error);
     }
@@ -70,11 +64,11 @@ window.onload = loadTasks;
 
 // Add Task
 async function addTask(){
-    let taskElement = document.getElementById('task');
-    let priorityElement = document.getElementById('priority');
+    let task = document.getElementById('task').value;
+    let priority = document.getElementById('priority').value;
 
-    if(taskElement.value.trim() === ""){
-        showToast(" Enter a task first", "#ff9800");
+    if(task.trim() === ""){
+        showToast("Enter a task first", "#ff9800");
         return;
     }
 
@@ -84,21 +78,18 @@ async function addTask(){
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                task: taskElement.value,
-                priority: priorityElement.value
-            })
+            body: JSON.stringify({ task, priority })
         });
 
         if(!res.ok) throw new Error("Add failed");
 
-        showToast(" Task Added", "#4caf50");
+        showToast("Task Added", "#4caf50");
 
-        taskElement.value = "";
+        document.getElementById('task').value = "";
         loadTasks();
 
     } catch (error) {
-        showToast(" Failed to add task", "#f44336");
+        showToast("❌ Failed to add task", "#f44336");
         console.error(error);
     }
 }
@@ -137,7 +128,7 @@ async function deleteTask(taskId) {
         loadTasks();
 
     } catch (error) {
-        showToast(" Failed to delete task", "#f44336");
+        showToast("❌ Failed to delete task", "#f44336");
         console.error(error);
     }
 }
