@@ -1,110 +1,154 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TO Do Application</title>
+    <title>TO DO Application</title>
 
-    <link rel="stylesheet" href="style.css">
+```
+<link rel="stylesheet" href="style.css">
 
-    <!-- Toastify -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<!-- Toastify -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+```
+
 </head>
 <body>
 
- <h1 id="heading">TO DO List</h1>
- <div id="displayContainer"></div>
+<h1 id="heading">TO DO List</h1>
+<div id="displayContainer">Loading tasks...</div>
 
-    <div class="container">
-        <input type="text" id="task" />
-        <select id="priority" class="selects">
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-        </select>
-        <button onclick="addTask()" class="btn">Add Task</button>
-    </div>
+<div class="container">
+    <input type="text" id="task" placeholder="Enter your task..." />
+    <select id="priority" class="selects">
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+    </select>
+    <button onclick="addTask()" class="btn">Add Task</button>
+</div>
 
-    <script>
-        // 🔔 Toast
-        function showToast(message, color) {
-            Toastify({
-                text: message,
-                duration: 2000,
-                gravity: "top",
-                position: "right",
-                style: {
-                    background: color
-                }
-            }).showToast();
+<script>
+const API_URL = "https://todo-backend-o6jo.onrender.com";
+
+// Toast
+function showToast(message, color) {
+    Toastify({
+        text: message,
+        duration: 2000,
+        gravity: "top",
+        position: "right",
+        style: {
+            background: color
         }
+    }).showToast();
+}
 
-        // ✅ LOAD TASKS FROM BACKEND
-        async function loadTasks(){
-            let res = await fetch("http://127.0.0.1:8000/tasks");
-            let data = await res.json();
-            displayTask(data);
-        }
+// Load tasks
+async function loadTasks(){
+    let display = document.getElementById('displayContainer');
+    display.innerHTML = "Loading tasks...";
 
-        window.onload = loadTasks;
+    try {
+        let res = await fetch(`${API_URL}/tasks`);
 
-        // ✅ ADD TASK (API)
-        async function addTask(){
-            let taskElement = document.getElementById('task');
-            let priorityElement = document.getElementById('priority');
+        if(!res.ok) throw new Error("Fetch failed");
 
-            if(taskElement.value.trim() === ""){
-                showToast("⚠️ Enter a task first", "#ff9800");
-                return;
-            }
+        let data = await res.json();
+        displayTask(data);
 
-            await fetch("http://127.0.0.1:8000/tasks", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    task: taskElement.value,
-                    priority: priorityElement.value
-                })
-            });
+    } catch (error) {
+        display.innerHTML = "<h2> Failed to load tasks</h2>";
+        showToast("Server not responding", "#f44336");
+        console.error(error);
+    }
+}
 
-            showToast("✅ Task Added", "#4caf50");
+window.onload = loadTasks;
 
-            taskElement.value = "";
+// Add Task
+async function addTask(){
+    let taskElement = document.getElementById('task');
+    let priorityElement = document.getElementById('priority');
 
-            loadTasks(); // refresh UI
-        }
+    if(taskElement.value.trim() === ""){
+        showToast(" Enter a task first", "#ff9800");
+        return;
+    }
 
-        // ✅ DISPLAY TASK
-        function displayTask(Display){
-            let display = document.getElementById('displayContainer');
-            display.innerHTML = "";
+    try {
+        let res = await fetch(`${API_URL}/tasks`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                task: taskElement.value,
+                priority: priorityElement.value
+            })
+        });
 
-            for(let i = 0; i < Display.length; i++){
-                display.innerHTML += `
-                <div id="displayContainers">
-                    <h1 class="h1tag">${Display[i].task}</h1>
-                    <h2 class="h2tag">${Display[i].priority}</h2>
-                    <button class="btn2" onclick="deletes(${Display[i].id})">✔ Complete</button>
-                </div>`;    
-            }   
-        }
+        if(!res.ok) throw new Error("Add failed");
 
-        // ✅ DELETE (COMPLETE TASK)
-        async function deletes(taskId) {
+        showToast(" Task Added", "#4caf50");
 
-            await fetch(`http://127.0.0.1:8000/tasks/${taskId}`, {
-                method: "DELETE"
-            });
+        taskElement.value = "";
+        loadTasks();
 
-            showToast("🎉 Task Completed", "#2196f3");
+    } catch (error) {
+        showToast(" Failed to add task", "#f44336");
+        console.error(error);
+    }
+}
 
-            loadTasks(); // refresh
-        }
+// Display Tasks
+function displayTask(tasks){
+    let display = document.getElementById('displayContainer');
 
-    </script>
+    if(tasks.length === 0){
+        display.innerHTML = "<h2>No tasks yet...</h2>";
+        return;
+    }
+
+    display.innerHTML = "";
+
+    tasks.forEach(task => {
+        display.innerHTML += `
+        <div id="displayContainers">
+            <h1 class="h1tag">${task.task}</h1>
+            <h2 class="h2tag">${task.priority}</h2>
+            <button class="btn2" onclick="deleteTask(${task.id})">✔ Complete</button>
+        </div>`;
+    });
+}
+
+// Delete Task
+async function deleteTask(taskId) {
+    try {
+        let res = await fetch(`${API_URL}/tasks/${taskId}`, {
+            method: "DELETE"
+        });
+
+        if(!res.ok) throw new Error("Delete failed");
+
+        showToast("🎉 Task Completed", "#2196f3");
+        loadTasks();
+
+    } catch (error) {
+        showToast(" Failed to delete task", "#f44336");
+        console.error(error);
+    }
+}
+
+// Enter key support
+document.getElementById("task").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        addTask();
+    }
+});
+</script>
 
 </body>
 </html>
