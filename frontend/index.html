@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TO Do Application</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Toastify -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+<body>
+
+ <h1 id="heading">TO DO List</h1>
+ <div id="displayContainer"></div>
+
+    <div class="container">
+        <input type="text" id="task" />
+        <select id="priority" class="selects">
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+        </select>
+        <button onclick="addTask()" class="btn">Add Task</button>
+    </div>
+
+    <script>
+        // 🔔 Toast
+        function showToast(message, color) {
+            Toastify({
+                text: message,
+                duration: 2000,
+                gravity: "top",
+                position: "right",
+                style: {
+                    background: color
+                }
+            }).showToast();
+        }
+
+        // ✅ LOAD TASKS FROM BACKEND
+        async function loadTasks(){
+            let res = await fetch("http://127.0.0.1:8000/tasks");
+            let data = await res.json();
+            displayTask(data);
+        }
+
+        window.onload = loadTasks;
+
+        // ✅ ADD TASK (API)
+        async function addTask(){
+            let taskElement = document.getElementById('task');
+            let priorityElement = document.getElementById('priority');
+
+            if(taskElement.value.trim() === ""){
+                showToast("⚠️ Enter a task first", "#ff9800");
+                return;
+            }
+
+            await fetch("http://127.0.0.1:8000/tasks", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    task: taskElement.value,
+                    priority: priorityElement.value
+                })
+            });
+
+            showToast("✅ Task Added", "#4caf50");
+
+            taskElement.value = "";
+
+            loadTasks(); // refresh UI
+        }
+
+        // ✅ DISPLAY TASK
+        function displayTask(Display){
+            let display = document.getElementById('displayContainer');
+            display.innerHTML = "";
+
+            for(let i = 0; i < Display.length; i++){
+                display.innerHTML += `
+                <div id="displayContainers">
+                    <h1 class="h1tag">${Display[i].task}</h1>
+                    <h2 class="h2tag">${Display[i].priority}</h2>
+                    <button class="btn2" onclick="deletes(${Display[i].id})">✔ Complete</button>
+                </div>`;    
+            }   
+        }
+
+        // ✅ DELETE (COMPLETE TASK)
+        async function deletes(taskId) {
+
+            await fetch(`http://127.0.0.1:8000/tasks/${taskId}`, {
+                method: "DELETE"
+            });
+
+            showToast("🎉 Task Completed", "#2196f3");
+
+            loadTasks(); // refresh
+        }
+
+    </script>
+
+</body>
+</html>
